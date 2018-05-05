@@ -19,8 +19,9 @@ request('https://www.reddit.com/user/'+botName+'/comments.rss', (err, res, body)
   
   var re = /Darn ?Counter: ?(\d+)/gi;
   var result = re.exec(body);
-  if (!result[1]) {
+  if (!result || !result[1]) {
     console.log('Cannot get latest count. Exiting.');
+    console.log(body);
     return;
   }
   console.log('Setting counter to', result[1]);
