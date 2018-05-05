@@ -2,14 +2,19 @@
   "name": "reddit-darn-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "web.js",
   "scripts": {
+    "start": "node web.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "8.9.1"
   },
   "author": "Rithvik Vibhu (https://github.com/rithvikvibhu)",
   "license": "ISC",
   "dependencies": {
     "config": "^1.30.0",
+    "express": "^4.16.3",
     "reddit-snooper": "^1.0.1",
     "request": "^2.85.0"
   }
