@@ -28,7 +28,7 @@ request('https://www.reddit.com/user/'+botName+'/comments.rss', (err, res, body)
   counter = parseInt(result[1])
   
   // Watch for new comments
-  snooper.watcher.getCommentWatcher('test').on('comment', function(comment) {
+  snooper.watcher.getCommentWatcher('IsTodayFridayThe13th').on('comment', function(comment) {
     console.log('u/' + comment.data.author + ' posted', comment.data.body);
     if (comment.data.author == botName) {return;}
     var count = (comment.data.body.match(/darn/gi) || []).length;
