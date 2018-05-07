@@ -59,13 +59,12 @@ function getLatestCount () {
 
 function listenForComments () {
   snooper.watcher.getCommentWatcher(subs).on('comment', function(comment) {
-    console.log('u/' + comment.data.author + ' posted', comment.data.body);
     if (comment.data.author == botName) {return;}
+    console.log('u/' + comment.data.author + ' posted', comment.data.body.substring(0, 20));
     var count = (comment.data.body.match(/darn/gi) || []).length;
-    console.log(count, 'Darn(s)!');
     if (count) {
+      console.log(count, 'Darn(s)! Updating counter to', counter);
       counter += count;
-      console.log('Updating counter to', counter);
       postComment(comment);
     }
   }).on('error', console.error);
@@ -78,7 +77,7 @@ function postComment (ref) {
       thing_id: ref.data.name
   }, function (err, statusCode, data) {
       if (!err) {
-        console.log('just replied to comment: ' + ref.data.name)
+        console.log('Replied to comment: ' + ref.data.name)
       } else {
         console.log(err);
       }
