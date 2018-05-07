@@ -17,7 +17,7 @@ request('https://www.reddit.com/user/'+botName+'/comments.rss', (err, res, body)
     return;
   }
   
-  var re = /Darn ?Counter: ?(\d+)/gi;
+  var re = /Darn[ \^]*Counter:[ \^]*(\d+)/gi;
   var result = re.exec(body);
   if (!result || !result[1]) {
     console.log('Cannot get latest count. Exiting.');
@@ -42,7 +42,7 @@ request('https://www.reddit.com/user/'+botName+'/comments.rss', (err, res, body)
           text: `What a ***darn*** shame...
 
 ---
-^^DarnCounter:${counter} ^^| ^^DM ^^me ^^with: ^^'blacklist-me' ^^to ^^be ^^ignored`,
+^^Darn ^^Counter: ^^${counter} ^^| ^^DM ^^me ^^with: ^^'blacklist-me' ^^to ^^be ^^ignored`,
           thing_id: comment.data.name
       }, function (err, statusCode, data) {
           if (!err) {
