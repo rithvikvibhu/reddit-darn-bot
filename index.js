@@ -42,7 +42,8 @@ function getLatestCount () {
         console.log(err);
         reject(err);
       }
-      var re = /Darn[ \^]*Counter:[ \^]*(\d+)/gi;
+      // var re = /Darn[ \^]*Counter:[ \^]*(\d+)/gi;
+      var re = /Darn ?Counter: ?(\d+)/gi; 
       var result = re.exec(body);
       if (!result || !result[1]) {
         console.log('Cannot get latest count. Exiting.');
@@ -73,7 +74,7 @@ function listenForComments () {
 function postComment (ref) {
   snooper.api.post("/api/comment", {
       api_type: "json",
-      text: `What a ***darn*** shame...\n\n---\n^^Darn ^^Counter: ^^${counter} ^^| ^^DM ^^me ^^with: ^^'blacklist-me' ^^to ^^be ^^ignored`,
+      text: `What a ***darn*** shame...\n\n---\n^^DarnCounter:${counter} ^^| ^^DM ^^me ^^with: ^^'blacklist-me' ^^to ^^be ^^ignored`,
       thing_id: ref.data.name
   }, function (err, statusCode, data) {
       if (!err) {
