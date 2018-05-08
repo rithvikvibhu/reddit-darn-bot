@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DarnBot</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(function () {
+        var app = new Vue({
+          el: '#app',
+          data: {
+            message: 'Hello Vue!',
+            counter: 0,
+            comments: []
+          }
+        });
+        var socket = io.connect('/');
+        socket.on('updateCounter', function (count) {
+          app.counter = count;
+          console.log(count);
+        });
+        socket.on('newComment', function (comment) {
+          app.comments.splice(0, 0, comment);
+          if (app.comments.length > 5) {
+            app.comments.pop();
+          }
+          console.log(comment);
+        });
+      });
+    </script>
+    <style>
+    .slide-fade-enter-active {
+      transition: all .3s ease;
+      }
+      .slide-fade-leave-active {
+      transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+      }
+      .slide-fade-enter, .slide-fade-leave-to
+      /* .slide-fade-leave-active below version 2.1.8 */ {
+      transform: translateX(10px);
+      opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      
+      <nav>
+        <div class="nav-wrapper blue">
+          <a href="#" class="brand-logo center">DarnBot</a>
+        </div>
+      </nav>
+      
+      <br><br><br><br>
+      
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col s12 m6 center" style="border-right: 2px solid #eee;">
+            <h4>Darn Count</h4>
+            <h2>{{counter}}</h2>
+            <br>
+            <div class="col s4 m4">
+              <h4>0</h4><h5>Today</h5>
+            </div>
+            <div class="col s4 m4">
+              <h4>0</h4><h5>This week</h5>
+            </div>
+            <div class="col s4 m4">
+              <h4>0</h4><h5>This month</h5>
+            </div>
+          </div>
+          <div class="col s12 m6">
+            
+            <ul class="collection with-header">
+              <li class="collection-header center"><h5>Latest Darns</h5></li>
+              <transition-group name="slide-fade">
+                <li class="collection-item" v-for="comment in comments" :key="comment"><div><a target="_blank" :href="comment.link"><span class="truncate">{{comment.author}} - {{comment.body}}</span></a></div></li>
+              </transition-group>
+            </ul>
+                      
+          </div>
+        </div>
+      </div>
+      
+      
+    </div>
+  </body>
+</html>

@@ -4,6 +4,7 @@ process.env.NODE_ENV = 'production';
 const Snooper = require('reddit-snooper')
 const request = require('request');
 const config = require('config')
+const events = require('events');
 
 const botName = 'darnbot';
 const accounts = JSON.parse(JSON.stringify(config.get('accounts')));
@@ -17,6 +18,7 @@ console.log('botName: '+ botName);
 console.log('multiName: '+ multiName);
 
 const snooper = new Snooper(accounts[botName]);
+module.exports = new events.EventEmitter();
 
 function getSubs () {
   return new Promise(function(resolve, reject) {
@@ -52,6 +54,7 @@ function getLatestCount () {
       }
       console.log('Setting counter to', result[1]);
       counter = parseInt(result[1]);
+      module.exports.emit('updateCounter', counter);
       resolve();
     });
   });
@@ -60,10 +63,12 @@ function getLatestCount () {
 function listenForComments () {
   snooper.watcher.getCommentWatcher(subs).on('comment', function(comment) {
     if (comment.data.author == botName) {return;}
-    console.log('u/' + comment.data.author + ' posted', comment.data.body.substring(0, 20));
+    console.log('u/' + comment.data.author + ' posted', comment.data.body.replace(/[\n\r]/gm,'').substring(0, 20));
     var count = (comment.data.body.match(/darn/gi) || []).length;
     if (count) {
       console.log(count, 'Darn(s)! Updating counter to', counter);
+      module.exports.emit('updateCounter', counter);
+      module.exports.emit('newComment', {body: comment.data.body, link: 'https://www.reddit.com'+comment.data.permalink, author: comment.data.author});
       counter += count;
       postComment(comment);
     }
