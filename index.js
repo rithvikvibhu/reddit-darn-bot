@@ -66,10 +66,10 @@ function listenForComments () {
     console.log('u/' + comment.data.author + ' posted', comment.data.body.replace(/[\n\r]/gm,'').substring(0, 20));
     var count = (comment.data.body.match(/darn/gi) || []).length;
     if (count) {
+      counter += count;
       console.log(count, 'Darn(s)! Updating counter to', counter);
       module.exports.emit('updateCounter', counter);
       module.exports.emit('newComment', {body: comment.data.body, link: 'https://www.reddit.com'+comment.data.permalink, author: comment.data.author});
-      counter += count;
       postComment(comment);
     }
   }).on('error', console.error);
