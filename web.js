@@ -11,9 +11,14 @@ server.listen(PORT, () => {
 var dataEmitter = require('./index');
 var tempCounter = 0;
 var tempComments = [];
+var tempSubs = [];
 dataEmitter.on('updateCounter', (count) => {
   tempCounter = count;
   io.sockets.emit('updateCounter', count);
+});
+dataEmitter.on('updateSubs', (subs) => {
+  tempSubs = subs;
+  io.sockets.emit('updateSubs', subs);
 });
 dataEmitter.on('newComment', (comment) => {
   tempComments.push(comment);
@@ -35,6 +40,7 @@ app.get('/', (req, res) => {
 io.on('connection', function (socket) {
   console.log('New client');
   socket.emit('updateCounter', tempCounter);
+  socket.emit('updateSubs', tempSubs);
   for (comment of tempComments) {
     socket.emit('newComment', comment);
   }

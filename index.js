@@ -31,6 +31,7 @@ function getSubs () {
         subsList.push(sub.name)
       });
       subs = subsList.join('+');
+      module.exports.emit('updateSubs', subsList);
       console.log('Listening on:', subsList);
       resolve();
     });
