@@ -72,7 +72,7 @@ function listenForComments () {
       var commentToSave = new database.Comment(comment.data);
       commentToSave.save(function (err, comment) {
         if (err) return console.error(err);
-        console.log('Saved comment', comment.data.name);
+        console.log('Saved comment', comment.id);
       });
       counter += count;
       console.log(count, 'Darn(s)! Updating counter to', counter);
