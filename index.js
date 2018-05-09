@@ -1,10 +1,12 @@
 // process.env.NODE_ENV = 'testing';
 process.env.NODE_ENV = 'production';
 
-const Snooper = require('reddit-snooper')
+const Snooper = require('reddit-snooper');
 const request = require('request');
 const config = require('config')
 const events = require('events');
+
+const database = require('./database');
 
 const botName = 'darnbot';
 const accounts = JSON.parse(JSON.stringify(config.get('accounts')));
@@ -67,6 +69,11 @@ function listenForComments () {
     console.log('u/' + comment.data.author + ' posted', comment.data.body.replace(/[\n\r]/gm,'').substring(0, 20));
     var count = (comment.data.body.match(/darn/gi) || []).length;
     if (count) {
+      var commentToSave = new database.Comment(comment.data);
+      commentToSave.save(function (err, comment) {
+        if (err) return console.error(err);
+        console.log('Saved comment', comment.data.name);
+      });
       counter += count;
       console.log(count, 'Darn(s)! Updating counter to', counter);
       module.exports.emit('updateCounter', counter);
