@@ -26,6 +26,7 @@ var commentSchema = new Schema({
   parent_id: String,
   permalink: String,
   is_submitter: Boolean,
+  darnCount: Number
 });
 
 exports.Comment = mongoose.model('Comment', commentSchema);
