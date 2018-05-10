@@ -3,6 +3,7 @@ process.env.NODE_ENV = 'production';
 
 const Snooper = require('reddit-snooper');
 const request = require('request');
+const moment = require('moment');
 const config = require('config')
 const events = require('events');
 
@@ -69,6 +70,8 @@ function listenForComments () {
     console.log('u/' + comment.data.author + ' posted', comment.data.body.replace(/[\n\r]/gm,'').substring(0, 20));
     var count = (comment.data.body.match(/darn/gi) || []).length;
     if (count) {
+      comment.data.created_iso = moment.unix(comment.data.created_utc).toISOString();
+      comment.data.darnCount = count;
       var commentToSave = new database.Comment(comment.data);
       commentToSave.save(function (err, comment) {
         if (err) return console.error(err);

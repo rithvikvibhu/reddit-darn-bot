@@ -22,6 +22,7 @@ var commentSchema = new Schema({
   body_html: String,
   created: Number,
   created_utc: Number,
+  created_iso: Date,
   parent_id: String,
   permalink: String,
   is_submitter: Boolean,
