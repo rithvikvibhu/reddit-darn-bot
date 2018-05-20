@@ -308,16 +308,16 @@
           data: {
             datasets: [{
               backgroundColor: Object.values(chartColors),
-              data: freqSubsData.map(x=>x.commentCount)
+              data: []
             }],
-            labels: freqSubsData.map(x=>x._id)
+            labels: []
           },
           options: {
             title: {
               display: true,
               position: 'bottom',
               fontSize: 20,
-              text: 'Comment count by subreddit'
+              text: 'Comment count by subreddit (Top 10)'
             }
           }
         });
@@ -325,12 +325,12 @@
         countByDateChart = new Chart($('#countByDate'), {
           type: 'line',
           data: {
-            labels: darnCountByDateData.map(x=>x.t),
+            labels: [],
             datasets: [
               {
                 yAxisID: 'commentCountByDateAxis',
                 label: 'Comment count by date',
-                data: commentCountByDateData,
+                data: [],
                 type: 'line',
                 pointRadius: 5,
                 borderColor: chartColors.blue,
@@ -342,7 +342,7 @@
               {
                 yAxisID: 'darnCountByDateAxis',
                 label: 'Darn count by date',
-                data: darnCountByDateData,
+                data: [],
                 type: 'line',
                 pointRadius: 5,
                 borderColor: chartColors.red,
@@ -358,7 +358,7 @@
               display: true,
               position: 'bottom',
               fontSize: 20,
-              text: 'Comment / Darn counts'
+              text: 'Comment / Darn counts (30 days)'
             },
             scales: {
               xAxes: [{

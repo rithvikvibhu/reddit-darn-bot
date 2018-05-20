@@ -46,13 +46,14 @@ function getStats() {
     exports.stats.countByDate = results[1];
     exports.stats.frequentAuthors = results[2];
     exports.stats.frequentSubs = results[3];
+    exports.stats.lastUpdated = new Date();
     exports.emitter.emit('newStats', exports.stats);
   }).catch(function(err) {console.error(err)});
 }
 getStats()
 setInterval(function () {
   getStats();
-},5*60*1000) // 5 minutes
+},2*60*1000) // 2 minutes
 
 function getCountBySubreddit () {
   return new Promise(function(resolve, reject) {
@@ -178,7 +179,7 @@ function getFrequentSubs () {
         "$sort": { commentCount: -1 }
       },
       {
-        "$limit": 30
+        "$limit": 10
       }
     ], function(err, result) {
       if (err) return reject(err);
