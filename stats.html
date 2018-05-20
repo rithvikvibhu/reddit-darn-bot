@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Stats - DarnBot</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script>
+      var freqSubsChart, countByDateChart, freqSubsData = [], commentCountByDateData = [], darnCountByDateData = [];
+      var chartColors = {
+      	red: 'rgb(255, 99, 132)',
+      	orange: 'rgb(255, 159, 64)',
+      	yellow: 'rgb(255, 205, 86)',
+      	green: 'rgb(75, 192, 192)',
+      	blue: 'rgb(54, 162, 235)',
+      	purple: 'rgb(153, 102, 255)',
+      	grey: 'rgb(201, 203, 207)'
+      };
+      var testData = {
+        "countBySubreddit": [
+          { "_id" : "IsTodayFridayThe13th", "commentCount" : 310, "darnCount" : 22470 },
+          { "_id" : "FortNiteBR", "commentCount" : 171, "darnCount" : 4713 },
+          { "_id" : "teenagersnew", "commentCount" : 84, "darnCount" : 89 },
+          { "_id" : "teenagers", "commentCount" : 16, "darnCount" : 17 },
+          { "_id" : "ComedyCemetery", "commentCount" : 14, "darnCount" : 14 },
+          { "_id" : "PrequelMemes", "commentCount" : 12, "darnCount" : 12 },
+          { "_id" : "assholedesign", "commentCount" : 12, "darnCount" : 12 },
+          { "_id" : "blackmagicfuckery", "commentCount" : 8, "darnCount" : 8 },
+          { "_id" : "niceguys", "commentCount" : 7, "darnCount" : 7 },
+          { "_id" : "starterpacks", "commentCount" : 6, "darnCount" : 6 },
+          { "_id" : "4PanelCringe", "commentCount" : 6, "darnCount" : 8 },
+          { "_id" : "greentext", "commentCount" : 5, "darnCount" : 5 },
+          { "_id" : "iamverysmart", "commentCount" : 5, "darnCount" : 5 },
+          { "_id" : "shittyfoodporn", "commentCount" : 4, "darnCount" : 4 },
+          { "_id" : "Wellthatsucks", "commentCount" : 4, "darnCount" : 4 },
+          { "_id" : "DeepFriedMemes", "commentCount" : 3, "darnCount" : 3 },
+          { "_id" : "AteTheOnion", "commentCount" : 3, "darnCount" : 3 },
+          { "_id" : "therewasanattempt", "commentCount" : 2, "darnCount" : 2 },
+          { "_id" : "MemeEconomy", "commentCount" : 2, "darnCount" : 2 },
+          { "_id" : "tumblr", "commentCount" : 2, "darnCount" : 2 }
+        ],
+        "countByDate": [
+          { "count" : 66, "darnCount" : 1342, "date" : "2018-5-10" },
+          { "count" : 59, "darnCount" : 5904, "date" : "2018-5-11" },
+          { "count" : 26, "darnCount" : 28, "date" : "2018-5-12" },
+          { "count" : 60, "darnCount" : 4468, "date" : "2018-5-13" },
+          { "count" : 60, "darnCount" : 7395, "date" : "2018-5-14" },
+          { "count" : 81, "darnCount" : 6534, "date" : "2018-5-15" },
+          { "count" : 159, "darnCount" : 1477, "date" : "2018-5-16" },
+          { "count" : 53, "darnCount" : 104, "date" : "2018-5-17" },
+          { "count" : 54, "darnCount" : 64, "date" : "2018-5-18" },
+          { "count" : 53, "darnCount" : 68, "date" : "2018-5-19" },
+          { "count" : 13, "darnCount" : 13, "date" : "2018-5-20" }
+        ],
+        "frequentAuthors": [
+          {
+            "_id": "HailSamBradford",
+            "commentCount": 15,
+            "darnCount": 0
+          },
+          {
+            "_id": "7ballcraze",
+            "commentCount": 8,
+            "darnCount": 0
+          },
+          {
+            "_id": "Icommentoncrap",
+            "commentCount": 7,
+            "darnCount": 0
+          },
+          {
+            "_id": "MBTECH22",
+            "commentCount": 5,
+            "darnCount": 0
+          },
+          {
+            "_id": "HelloThisIsFrode",
+            "commentCount": 4,
+            "darnCount": 0
+          },
+          {
+            "_id": "ABlankNam3dKid",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "Lruns",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "raphlepro4",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "etheran123",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "Hipspace",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "Hackerwithalacker",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "AlexDaCookie",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "MattyMoo728",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "Foxelexof",
+            "commentCount": 3,
+            "darnCount": 0
+          },
+          {
+            "_id": "MoWobbler",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "quacksmacker263",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "tom_thebomb",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "fyrefocks",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "Cassieshere",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "travam1",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "PokeWaffles42",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "GoodBot_BadBot",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "Kulkinz",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "VitaminFTW",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "Bved123",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "loverturf",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "Dr_Mr_Jeff",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "spooderduck",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "VintageWhiteMan",
+            "commentCount": 2,
+            "darnCount": 0
+          },
+          {
+            "_id": "YiffyOwO",
+            "commentCount": 2,
+            "darnCount": 0
+          }
+        ],
+        "frequentSubs": [
+          {
+            "_id": "IsTodayFridayThe13th",
+            "commentCount": 143,
+            "darnCount": 11135
+          },
+          {
+            "_id": "teenagersnew",
+            "commentCount": 48,
+            "darnCount": 52
+          },
+          {
+            "_id": "FortNiteBR",
+            "commentCount": 26,
+            "darnCount": 1297
+          },
+          {
+            "_id": "4PanelCringe",
+            "commentCount": 6,
+            "darnCount": 8
+          },
+          {
+            "_id": "teenagers",
+            "commentCount": 5,
+            "darnCount": 5
+          },
+          {
+            "_id": "blackmagicfuckery",
+            "commentCount": 4,
+            "darnCount": 4
+          },
+          {
+            "_id": "starterpacks",
+            "commentCount": 4,
+            "darnCount": 4
+          },
+          {
+            "_id": "shittyfoodporn",
+            "commentCount": 3,
+            "darnCount": 3
+          },
+          {
+            "_id": "AteTheOnion",
+            "commentCount": 3,
+            "darnCount": 3
+          },
+          {
+            "_id": "Wellthatsucks",
+            "commentCount": 2,
+            "darnCount": 2
+          },
+          {
+            "_id": "assholedesign",
+            "commentCount": 2,
+            "darnCount": 2
+          },
+          {
+            "_id": "greentext",
+            "commentCount": 1,
+            "darnCount": 1
+          },
+          {
+            "_id": "therewasanattempt",
+            "commentCount": 1,
+            "darnCount": 1
+          },
+          {
+            "_id": "DeepFriedMemes",
+            "commentCount": 1,
+            "darnCount": 1
+          }
+        ]
+      }
+      function processNewStats(newStats) {
+        freqSubsData = newStats.frequentSubs;
+        commentCountByDateData = JSON.parse(JSON.stringify(newStats.countByDate));
+        darnCountByDateData = JSON.parse(JSON.stringify(newStats.countByDate));
+        for (var i = 0; i < newStats.countByDate.length; i++) {
+          darnCountByDateData[i].t = commentCountByDateData[i].t = moment(newStats.countByDate[i].date, 'YYYY-M-D').valueOf();
+          commentCountByDateData[i].y = newStats.countByDate[i].count;
+          darnCountByDateData[i].y = newStats.countByDate[i].darnCount;
+        }
+        console.log('commentCountByDate', commentCountByDateData);
+        console.log('darnCountByDate', darnCountByDateData);
+        freqSubsChart.data.datasets[0].data = freqSubsData.map(x=>x.commentCount);
+        freqSubsChart.data.labels = freqSubsData.map(x=>x._id);
+        countByDateChart.data.labels = commentCountByDateData.map(x=>x.t);
+        countByDateChart.data.datasets[0].data = commentCountByDateData;
+        countByDateChart.data.datasets[1].data = darnCountByDateData;
+        freqSubsChart.update();
+        countByDateChart.update();
+      }
+      $(function() {
+        
+        freqSubsChart = new Chart($("#freqSubsChart"),{
+          type: 'pie',
+          data: {
+            datasets: [{
+              backgroundColor: Object.values(chartColors),
+              data: []
+            }],
+            labels: []
+          },
+          options: {
+            title: {
+              display: true,
+              position: 'bottom',
+              fontSize: 20,
+              text: 'Comment count by subreddit (Top 10)'
+            }
+          }
+        });
+        
+        countByDateChart = new Chart($('#countByDate'), {
+          type: 'line',
+          data: {
+            labels: [],
+            datasets: [
+              {
+                yAxisID: 'commentCountByDateAxis',
+                label: 'Comment count by date',
+                data: [],
+                type: 'line',
+                pointRadius: 5,
+                borderColor: chartColors.blue,
+                backgroundColor: chartColors.blue,
+      					fill: false,
+      					lineTension: 0,
+      					borderWidth: 2
+              },
+              {
+                yAxisID: 'darnCountByDateAxis',
+                label: 'Darn count by date',
+                data: [],
+                type: 'line',
+                pointRadius: 5,
+                borderColor: chartColors.red,
+				        backgroundColor: chartColors.red,
+      					fill: false,
+      					lineTension: 0,
+      					borderWidth: 2
+              }
+            ]
+          },
+          options: {
+            title: {
+              display: true,
+              position: 'bottom',
+              fontSize: 20,
+              text: 'Comment / Darn counts (30 days)'
+            },
+            scales: {
+              xAxes: [{
+    						type: 'time',
+    						distribution: 'series',
+                time: {
+                  unit: 'day'
+                },
+    						ticks: {
+    							source: 'labels'
+    						}
+    					}],
+              yAxes: [
+                {
+                  id: 'commentCountByDateAxis',
+    							display: true,
+                  position: 'left',
+    							labelString: 'Comment Count'
+    					  },
+                {
+                  id: 'darnCountByDateAxis',
+    							display: true,
+                  position: 'right',
+    							labelString: 'Darn Count',
+                  gridLines: {
+    								drawOnChartArea: false, // only want the grid lines for one axis to show up
+    							}
+    					  }
+              ]
+            }
+          }
+        });
+        
+        var socket = io.connect('/');
+        socket.on('newStats', function (newStats) {
+          console.log(newStats);
+          if (newStats) {
+            processNewStats(newStats);
+          }
+        });
+        
+      })
+    </script>
+  </head>
+  <body>
+    
+    <div class="container-fluid">
+      
+      <div class="row">
+        
+        <div class="col s12 m6">
+          <div class="chart-container">
+            <canvas id="freqSubsChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="col s12 m6">
+          <div class="chart-container">
+            <canvas id="countByDate"></canvas>
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+    
+  </body>
+</html>
