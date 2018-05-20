@@ -7,11 +7,16 @@ server.listen(PORT, () => {
   console.log(`Listening on ${ PORT }`)
 });
 
-// const path = require('path')
 var dataEmitter = require('./index');
 var tempCounter = 0;
 var tempComments = [];
 var tempSubs = [];
+var tempStats = {};
+dataEmitter.on('newStats', (stats) => {
+  tempStats = stats;
+  console.log('New Stats', stats);
+  io.sockets.emit('newStats', stats);
+});
 dataEmitter.on('updateCounter', (count) => {
   tempCounter = count;
   io.sockets.emit('updateCounter', count);
@@ -28,22 +33,19 @@ dataEmitter.on('newComment', (comment) => {
   io.sockets.emit('newComment', comment);
 });
 
-  // .use(express.static(path.join(__dirname, 'public')))
-  // .set('views', path.join(__dirname, 'views'))
-  // .set('view engine', 'ejs')
-
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
-  // res.send('Working!');
+});
+app.get('/stats', (req, res) => {
+  res.sendFile(__dirname + '/stats.html');
 });
 
 io.on('connection', function (socket) {
   console.log('New client');
+  socket.emit('newStats', tempStats);
   socket.emit('updateCounter', tempCounter);
   socket.emit('updateSubs', tempSubs);
   for (comment of tempComments) {
     socket.emit('newComment', comment);
   }
 });
-
-// app.listen(PORT, () => console.log(`Listening on ${ PORT }`));

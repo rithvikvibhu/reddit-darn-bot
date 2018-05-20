@@ -97,4 +97,8 @@ function postComment (ref) {
   })
 }
 
+database.emitter.on('newStats', function(stats) {
+  module.exports.emit('newStats', stats);
+});
+
 getSubs().then(getLatestCount).then(listenForComments).catch(e => console.error(err));
