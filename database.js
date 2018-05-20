@@ -136,7 +136,7 @@ function getFrequentAuthors () {
       {
         "$project": {
           author: 1,
-          darnCount: "darnCount",
+          darnCount: 1,
           _id: 0
         }
       },
@@ -151,7 +151,7 @@ function getFrequentAuthors () {
         "$sort": { commentCount: -1 }
       },
       {
-        "$limit": 30
+        "$limit": 12
       }
     ], function(err, result) {
       if (err) return reject(err);
