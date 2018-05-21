@@ -1,6 +1,7 @@
 const config = require('config');
 const mongoose = require('mongoose');
 const moment = require('moment');
+const request = require('request');
 const events = require('events');
 const Schema = mongoose.Schema;
 
@@ -52,9 +53,33 @@ function getStats() {
     exports.emitter.emit('newStats', exports.stats);
   }).catch(function(err) {console.error(err)});
 }
-getStats()
+function getGBBBInfo() {
+  return new Promise(function(resolve, reject) {
+    request('https://goodbot-badbot.herokuapp.com/all_filter', (err, res, body) => {
+      if (err) {
+        console.log(err);
+        reject(err);
+      }
+      var re = /[\sa-z<>]+(\d+)[\sa-z<>\/]+='[a-z:/\.]+\/darnbot'[\sa-z<>\/]+(\d+\.?\d*)<\/td>[\sa-z<>="]+(\d+)[\sa-z<>\/="]+(\d+)/gi;
+      var result = re.exec(body);
+      if (!result || result.length != 5) {
+        console.log('NOPE');
+        reject('No GBBB result');
+      }
+      resolve(result)
+    });
+  }).then(function (res) {
+    exports.emitter.emit('GBBB', {rank: res[1], score: res[2], good: res[3], bad: res[4]});
+  }).catch(function (err) {
+    console.log(err)
+  });
+}
+getStats();
+getGBBBInfo();
 setInterval(function () {
+  console.log('Refreshing stats.');
   getStats();
+  getGBBBInfo();
 },2*60*1000) // 2 minutes
 
 function getCountBySubreddit () {

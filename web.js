@@ -12,9 +12,14 @@ var tempCounter = 0;
 var tempComments = [];
 var tempSubs = [];
 var tempStats = {};
+var tempGBBB = {};
+dataEmitter.on('GBBB', (res) => {
+  tempGBBB = res;
+  console.log('New GBBB', res);
+  io.sockets.emit('GBBB', res);
+});
 dataEmitter.on('newStats', (stats) => {
   tempStats = stats;
-  console.log('New Stats', stats);
   io.sockets.emit('newStats', stats);
 });
 dataEmitter.on('updateCounter', (count) => {
@@ -43,6 +48,7 @@ app.get('/stats', (req, res) => {
 io.on('connection', function (socket) {
   console.log('New client');
   socket.emit('newStats', tempStats);
+  socket.emit('GBBB', tempGBBB);
   socket.emit('updateCounter', tempCounter);
   socket.emit('updateSubs', tempSubs);
   for (comment of tempComments) {
