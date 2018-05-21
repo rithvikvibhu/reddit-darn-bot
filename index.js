@@ -34,7 +34,7 @@ function getSubs () {
       });
       subs = subsList.join('+');
       module.exports.emit('updateSubs', subsList);
-      console.log('Listening on:', subsList);
+      console.log(`Listening on (${subsList.length}):`, subsList);
       resolve();
     });
   });
@@ -99,6 +99,9 @@ function postComment (ref) {
 
 database.emitter.on('newStats', function(stats) {
   module.exports.emit('newStats', stats);
+});
+database.emitter.on('GBBB', function(res) {
+  module.exports.emit('GBBB', res);
 });
 
 getSubs().then(getLatestCount).then(listenForComments).catch(e => console.error(err));

@@ -439,10 +439,25 @@
             processNewStats(newStats);
           }
         });
+        socket.on('GBBB', function (res) {
+          console.log('GBBB', res);
+          $('#gbbbContainer div:eq(1) span span').text(res.rank);
+          $('#gbbbContainer div:eq(2) span span').text(res.score);
+          $('#gbbbContainer div:eq(3) span:eq(0) span').text(res.good);
+          $('#gbbbContainer div:eq(3) span:eq(2) span').text(res.bad);
+        });
         
       })
     </script>
     <style>
+      #gbbbContainer {
+        border: solid #2196f3 4px;
+        border-radius: 6px;
+        line-height: 50px;
+      }
+      #gbbbContainer > div:not(:first-child) span {
+        font-weight: bold;
+      }
       .smallerCollection {
         line-height: 1.1 !important;
       }
@@ -462,6 +477,24 @@
     <br>
     
     <div class="container-fluid">
+      
+      <div class="row">
+        <div id="gbbbContainer" class="col s12 m10 offset-m1 center">
+          <div class="col m3">
+            <span style="font-size: 1.4em;">GoodBot_BadBot Info</span>
+          </div>
+          <div class="col m3">
+            <span>Rank: <span>...</span></span>
+          </div>
+          <div class="col m3">
+            <span>Score: <span>...</span></span>
+          </div>
+          <div class="col m3">
+            <span>Good: <span>...</span></span>
+            <span>Bad: <span>...</span></span>
+          </div>
+        </div>
+      </div>
       
       <div class="row">
         
