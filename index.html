@@ -30,6 +30,12 @@
           }
         });
         var socket = io.connect('/');
+        socket.on('connect', function(){
+          $('#connectionStatus').removeClass('orange').addClass('green').text('Connected');
+        });
+        socket.on('disconnect', function(){
+          $('#connectionStatus').removeClass('green').addClass('orange').text('Connecting...');
+        });
         socket.on('updateCounter', function (count) {
           app.counter = count;
           console.log(count);
@@ -48,6 +54,16 @@
       });
     </script>
     <style>
+    #connectionStatus {
+      font-size: 1.1rem;
+      line-height: 30px;
+      height: 30px;
+      color: white;
+      border-radius: 25px;
+      font-weight: 400;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
     #subsList span {
       border: 1px solid black;
       border-radius: 6px;
@@ -77,6 +93,9 @@
       <nav>
         <div class="nav-wrapper blue">
           <a href="#" class="brand-logo center">DarnBot</a>
+          <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href=""><span id="connectionStatus" class="badge orange">Connecting...</span></a></li>
+          </ul>
         </div>
       </nav>
       
