@@ -6,8 +6,10 @@
     <title>DarnBot</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118880857-1"></script>
@@ -19,6 +21,49 @@
       gtag('config', 'UA-118880857-1');
     </script>
     <script>
+      var freqSubsChart, countByDateChart, freqSubsChart, freqSubsData = [], commentCountByDateData = [], darnCountByDateData = [];
+      var chartColors = {
+        red: 'rgb(255, 99, 132)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
+        green: 'rgb(75, 192, 192)',
+        blue: 'rgb(54, 162, 235)',
+        purple: 'rgb(153, 102, 255)',
+        grey: 'rgb(201, 203, 207)'
+      };
+      function processNewStats(newStats) {
+        freqSubsData = newStats.frequentSubs;
+        commentCountByDateData = JSON.parse(JSON.stringify(newStats.countByDate));
+        darnCountByDateData = JSON.parse(JSON.stringify(newStats.countByDate));
+        for (var i = 0; i < newStats.countByDate.length; i++) {
+          darnCountByDateData[i].t = commentCountByDateData[i].t = moment(newStats.countByDate[i].date, 'YYYY-M-D').valueOf();
+          commentCountByDateData[i].y = newStats.countByDate[i].count;
+          darnCountByDateData[i].y = newStats.countByDate[i].darnCount;
+        }
+        console.log('commentCountByDate', commentCountByDateData);
+        console.log('darnCountByDate', darnCountByDateData);
+        freqSubsChart.data.datasets[0].data = freqSubsData.map(x=>x.commentCount);
+        freqSubsChart.data.labels = freqSubsData.map(x=>x._id);
+        freqAuthorsChart.data.datasets[0].data = newStats.frequentAuthors.map(x=>x.commentCount);
+        freqAuthorsChart.data.labels = newStats.frequentAuthors.map(x=>x._id);
+        countByDateChart.data.labels = commentCountByDateData.map(x=>x.t);
+        countByDateChart.data.datasets[0].data = commentCountByDateData;
+        countByDateChart.data.datasets[1].data = darnCountByDateData;
+        freqSubsChart.update();
+        countByDateChart.update();
+        freqAuthorsChart.update();
+        
+        $('#topAuthorsList').children('a').remove();
+        $('#freqSubsList').children('a').remove();
+        for (author of newStats.frequentAuthors) {
+          $('#topAuthorsList').append(`<a href="https://www.reddit.com/u/${author._id}" target="_blank" class="collection-item smallerCollection">${author._id}<span class="badge">${author.commentCount}</span></a>`);
+        }
+        for (sub of newStats.frequentSubs) {
+          $('#freqSubsList').append(`<a href="https://www.reddit.com/r/${sub._id}" target="_blank" class="collection-item smallerCollection">${sub._id}<span class="badge">${sub.commentCount}</span></a>`);
+        }
+        
+        $('#lastUpdated').text('Last updated: ' + moment(newStats.lastUpdated).format('MMMM Do YYYY, h:mm:ss a') + ' (' + moment(newStats.lastUpdated).fromNow() + ')');
+      }
       $(function () {
         var app = new Vue({
           el: '#app',
@@ -29,9 +74,123 @@
             subs: []
           }
         });
+        // Subreddit pie chart
+        freqSubsChart = new Chart($("#freqSubsChart"),{
+          type: 'pie',
+          data: {
+            datasets: [{
+              backgroundColor: Object.values(chartColors),
+              data: []
+            }],
+            labels: []
+          },
+          options: {
+            title: {
+              display: true,
+              position: 'bottom',
+              fontSize: 20,
+              text: 'Comment count by subreddit (Top 10)'
+            }
+          }
+        });
+        
+        // Authors bar graph
+        freqAuthorsChart = new Chart($("#freqAuthors"),{
+          type: 'horizontalBar',
+          data: {
+            datasets: [{
+              backgroundColor: Object.values(chartColors),
+              data: []
+            }],
+            labels: []
+          },
+          options: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: true,
+              position: 'bottom',
+              fontSize: 20,
+              text: 'Frequent commenters (All time)'
+            }
+          }
+        });
+        
+        // Count line graph
+        countByDateChart = new Chart($('#countByDate'), {
+          type: 'line',
+          data: {
+            labels: [],
+            datasets: [
+              {
+                yAxisID: 'commentCountByDateAxis',
+                label: 'Comment count by date',
+                data: [],
+                type: 'line',
+                pointRadius: 5,
+                borderColor: chartColors.blue,
+                backgroundColor: chartColors.blue,
+      					fill: false,
+      					lineTension: 0,
+      					borderWidth: 2
+              },
+              {
+                yAxisID: 'darnCountByDateAxis',
+                label: 'Darn count by date',
+                data: [],
+                type: 'line',
+                pointRadius: 5,
+                borderColor: chartColors.red,
+				        backgroundColor: chartColors.red,
+      					fill: false,
+      					lineTension: 0,
+      					borderWidth: 2
+              }
+            ]
+          },
+          options: {
+            title: {
+              display: true,
+              position: 'bottom',
+              fontSize: 20,
+              text: 'Comment / Darn counts (30 days)'
+            },
+            scales: {
+              xAxes: [{
+    						type: 'time',
+    						distribution: 'series',
+                time: {
+                  unit: 'day'
+                },
+    						ticks: {
+    							source: 'labels'
+    						}
+    					}],
+              yAxes: [
+                {
+                  id: 'commentCountByDateAxis',
+    							display: true,
+                  position: 'left',
+    							labelString: 'Comment Count'
+    					  },
+                {
+                  id: 'darnCountByDateAxis',
+    							display: true,
+                  position: 'right',
+    							labelString: 'Darn Count',
+                  gridLines: {
+    								drawOnChartArea: false, // only want the grid lines for one axis to show up
+    							}
+    					  }
+              ]
+            }
+          }
+        });
+        
         var socket = io.connect('/');
         socket.on('connect', function(){
-          $('#connectionStatus').removeClass('orange').addClass('green').text('Connected');
+          $('#connectionStatus').removeClass('orange').addClass('green').text('Connected (live counter)');
         });
         socket.on('disconnect', function(){
           $('#connectionStatus').removeClass('green').addClass('orange').text('Connecting...');
@@ -50,6 +209,19 @@
             app.comments.pop();
           }
           console.log(comment);
+        });
+        socket.on('newStats', function (newStats) {
+          console.log(newStats);
+          if (newStats) {
+            processNewStats(newStats);
+          }
+        });
+        socket.on('GBBB', function (res) {
+          console.log('GBBB', res);
+          $('#gbbbContainer div:eq(1) span span').text(res.rank);
+          $('#gbbbContainer div:eq(2) span span').text(res.score);
+          $('#gbbbContainer div:eq(3) span:eq(0) span').text(res.good);
+          $('#gbbbContainer div:eq(3) span:eq(2) span').text(res.bad);
         });
       });
     </script>
@@ -85,6 +257,27 @@
       transform: translateX(10px);
       opacity: 0;
     }
+    #lastUpdated {
+      font-size: 1.1rem;
+      line-height: 30px;
+      height: 30px;
+      color: white;
+      border-radius: 25px;
+      font-weight: 400;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+    #gbbbContainer {
+      border: solid #2196f3 4px;
+      border-radius: 6px;
+      line-height: 50px;
+    }
+    #gbbbContainer > div:not(:first-child) span {
+      font-weight: bold;
+    }
+    .smallerCollection {
+      line-height: 1.1 !important;
+    }
     </style>
   </head>
   <body>
@@ -95,6 +288,7 @@
           <a href="#" class="brand-logo center">DarnBot</a>
           <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href=""><span id="connectionStatus" class="badge orange">Connecting...</span></a></li>
+            <!-- <li><a href=""><span id="lastUpdated" class="badge orange">Last updated: ...</span></a></li> -->
           </ul>
         </div>
       </nav>
@@ -107,24 +301,22 @@
             <h2>{{counter}}</h2>
             <br>
             <div class="col s4 m4">
-              <h4>0</h4><h5>Today</h5>
+              <h4>--</h4><h5>Today</h5>
             </div>
             <div class="col s4 m4">
-              <h4>0</h4><h5>This week</h5>
+              <h4>--</h4><h5>This week</h5>
             </div>
             <div class="col s4 m4">
-              <h4>0</h4><h5>This month</h5>
+              <h4>--</h4><h5>This month</h5>
             </div>
           </div>
           <div class="col s12 m6">
-            
             <ul class="collection with-header">
               <li class="collection-header center"><h5>Latest Darns</h5></li>
               <transition-group name="slide-fade">
                 <li class="collection-item" v-for="comment in comments" :key="comment"><div><a target="_blank" :href="comment.link"><span class="truncate">{{comment.author}} - {{comment.body}}</span></a></div></li>
               </transition-group>
             </ul>
-                      
           </div>
         </div>
         <div class="row">
@@ -134,8 +326,63 @@
             </h6>
           </div>
         </div>
+        <div class="row">
+          <div class="col s12 m12 center">
+            <h3>Stats</h3>
+            <span id="lastUpdated" class="badge orange center">Last updated: ...</span>
+          </div>
+        </div>
+        <div class="row">
+          <div id="gbbbContainer" class="col s12 m10 offset-m1 center">
+            <div class="col m3">
+              <span style="font-size: 1.4em;">GoodBot_BadBot Info</span>
+            </div>
+            <div class="col m3">
+              <span>Rank: <span>...</span></span>
+            </div>
+            <div class="col m3">
+              <span>Score: <span>...</span></span>
+            </div>
+            <div class="col m3">
+              <span>Good: <span>...</span></span>
+              <span>Bad: <span>...</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s12 m4">
+            <div id="freqSubsList" class="collection with-header">
+              <li class="collection-header"><h5>Top subreddits (comments)</h5></li>
+              <a href="#!" class="collection-item"><span class="badge">...</span>Loading...</a>
+            </div>
+          </div>
+          <div class="col s12 m8">
+            <div class="chart-container">
+              <canvas id="freqSubsChart"></canvas>
+            </div>
+          </div>
+        </div><br>
+        <div class="row">
+          <div class="col s12 m8 offset-m2">
+            <div class="chart-container">
+              <canvas id="countByDate"></canvas>
+            </div>
+          </div>
+        </div><br>
+        <div class="row">
+          <div class="col s12 m4">
+            <div id="topAuthorsList" class="collection with-header">
+              <li class="collection-header"><h5>Top darn commenters</h5></li>
+              <a href="#!" class="collection-item"><span class="badge">...</span>Loading...</a>
+            </div>
+          </div>
+          <div class="col s12 m8">
+            <div class="chart-container">
+              <canvas id="freqAuthors"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
-      
       
     </div>
   </body>
