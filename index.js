@@ -89,7 +89,7 @@ function listenForComments () {
 function postComment (ref) {
   snooper.api.post("/api/comment", {
       api_type: "json",
-      text: `What a ***darn*** shame...\n\n---\n^^DarnCounter:${counter} ^^| ^^DM ^^me ^^with: ^^'blacklist-me' ^^to ^^be ^^ignored`,
+      text: `What a ***darn*** shame...\n\n---\n^^DarnCounter:${counter} ^^| ^^DM ^^me ^^with: ^^'blacklist-me' ^^to ^^be ^^ignored ^^| ^^More ^^stats ^^available ^^at ^^**[https://darnbot.ml](https://darnbot.ml)**`,
       thing_id: ref.data.name
   }, function (err, statusCode, data) {
       if (!err) {
