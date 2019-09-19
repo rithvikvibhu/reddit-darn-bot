@@ -14,7 +14,7 @@
   "author": "Rithvik Vibhu (https://github.com/rithvikvibhu)",
   "license": "ISC",
   "dependencies": {
-    "config": "^1.30.0",
+    "config": "^3.2.2",
     "express": "^4.16.3",
     "moment": "^2.22.1",
     "mongoose": "^5.0.17",
