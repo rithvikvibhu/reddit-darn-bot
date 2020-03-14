@@ -52,7 +52,7 @@
         freqSubsChart.update();
         countByDateChart.update();
         freqAuthorsChart.update();
-        
+
         $('#topAuthorsList').children('a').remove();
         $('#freqSubsList').children('a').remove();
         for (author of newStats.frequentAuthors) {
@@ -61,7 +61,7 @@
         for (sub of newStats.frequentSubs) {
           $('#freqSubsList').append(`<a href="https://www.reddit.com/r/${sub._id}" target="_blank" class="collection-item smallerCollection">${sub._id}<span class="badge">${sub.commentCount}</span></a>`);
         }
-        
+
         $('#lastUpdated').text('Last updated: ' + moment(newStats.lastUpdated).format('MMMM Do YYYY, h:mm:ss a') + ' (' + moment(newStats.lastUpdated).fromNow() + ')');
       }
       $(function () {
@@ -93,7 +93,7 @@
             }
           }
         });
-        
+
         // Authors bar graph
         freqAuthorsChart = new Chart($("#freqAuthors"),{
           type: 'horizontalBar',
@@ -116,7 +116,7 @@
             }
           }
         });
-        
+
         // Count line graph
         countByDateChart = new Chart($('#countByDate'), {
           type: 'line',
@@ -187,7 +187,7 @@
             }
           }
         });
-        
+
         var socket = io.connect('/');
         socket.on('connect', function(){
           $('#connectionStatus').removeClass('orange').addClass('green').text('Connected (live counter)');
@@ -282,7 +282,7 @@
   </head>
   <body>
     <div id="app">
-      
+
       <nav>
         <div class="nav-wrapper blue">
           <a href="#" class="brand-logo center">DarnBot</a>
@@ -292,7 +292,7 @@
           </ul>
         </div>
       </nav>
-      
+
       <div class="container-fluid">
         <br><br>
         <div class="row">
@@ -383,7 +383,7 @@
           </div>
         </div>
       </div>
-      
+
     </div>
   </body>
 </html>

@@ -23,7 +23,7 @@ console.log('multiName: '+ multiName);
 const snooper = new Snooper(accounts[botName]);
 module.exports = new events.EventEmitter();
 
-function getSubs () {
+function getSubs() {
   return new Promise(function(resolve, reject) {
     snooper.api.get(`/api/multi/user/${botName}/m/${multiName}`, {}, function (err, statusCode, res) {
       if (err) {
@@ -41,30 +41,40 @@ function getSubs () {
   });
 }
 
-function getLatestCount () {
-  return new Promise(function(resolve, reject) {
-    request(`https://www.reddit.com/user/${botName}/comments.rss`, (err, res, body) => {
-      if (err) {
-        console.log(err);
-        reject(err);
-      }
-      // var re = /Darn[ \^]*Counter:[ \^]*(\d+)/gi;
-      var re = /Darn ?Counter: ?(\d+)/gi; 
-      var result = re.exec(body);
-      if (!result || !result[1]) {
-        console.log('Cannot get latest count. Exiting.');
-        console.log(body);
-        reject();
-      }
-      console.log('Setting counter to', result[1]);
-      counter = parseInt(result[1]);
-      module.exports.emit('updateCounter', counter);
-      resolve();
+async function getLatestCount() {
+  var count, after;
+  while (!count) {
+    console.log(`Trying to find count after ${after}`);
+
+    await new Promise(function(resolve, reject) {
+      request(`https://www.reddit.com/user/${botName}/comments.json` + (after ? `?after=${after}`: ''), (err, res, body) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        }
+        var data = JSON.parse(body);
+
+        // var re = /Darn[ \^]*Counter:[ \^]*(\d+)/gi;
+        var re = /Darn ?Counter: ?(\d+)/gi;
+        var result = re.exec(body);
+        console.log('Regex match:', !!result);
+
+        if (!result) {
+          after = data.data.after;
+          return resolve();
+        } else {
+          count = parseInt(result[1]);
+          return resolve();
+        }
+      });
     });
-  });
+  }
+  console.log('Setting counter to', count);
+  counter = count;
+  module.exports.emit('updateCounter', count);
 }
 
-function listenForComments () {
+function listenForComments() {
   snooper.watcher.getCommentWatcher(subs).on('comment', function(comment) {
     if (comment.data.author == botName) {return;}
     console.log('u/' + comment.data.author + ' posted', comment.data.body.replace(/[\n\r]/gm,'').substring(0, 20));
@@ -86,7 +96,7 @@ function listenForComments () {
   }).on('error', console.error);
 }
 
-function postComment (ref) {
+function postComment(ref) {
   snooper.api.post("/api/comment", {
       api_type: "json",
       text: `What a ***darn*** shame...\n\n---\n^^DarnCounter:${counter} ^^| ^^DM ^^me ^^with: ^^'blacklist-me' ^^to ^^be ^^ignored ^^| ^^More ^^stats ^^available ^^at ^^**[https://darnbot.ml](https://darnbot.ml)**`,
