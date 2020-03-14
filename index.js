@@ -78,7 +78,7 @@ function listenForComments() {
   snooper.watcher.getCommentWatcher(subs).on('comment', function(comment) {
     if (comment.data.author == botName) {return;}
     console.log('u/' + comment.data.author + ' posted', comment.data.body.replace(/[\n\r]/gm,'').substring(0, 20));
-    var count = (comment.data.body.match(/darn[^(ell)]/gi) || []).length;
+    var count = (comment.data.body.match(/darn[^(ell)]?/gi) || []).length;
     if (count) {
       comment.data.created_iso = moment.unix(comment.data.created_utc).toISOString();
       comment.data.darnCount = count;
