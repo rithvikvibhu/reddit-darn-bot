@@ -34,7 +34,9 @@ var commentSchema = new Schema({
 });
 
 var Comment = mongoose.model('Comment', commentSchema);
-mongoose.connect(`mongodb://${dbCreds.username}:${dbCreds.password}@${dbCreds.host}:${dbCreds.port}/${dbCreds.db}`);
+
+var connUri = dbCreds.connUri ? dbCreds.connUri : `mongodb://${dbCreds.username}:${dbCreds.password}@${dbCreds.host}:${dbCreds.port}/${dbCreds.db}`
+mongoose.connect(connUri);
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
